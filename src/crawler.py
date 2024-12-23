@@ -1,10 +1,7 @@
 import os
 import time
 import random
-import json
-from typing import Dict, List, Optional
-import requests
-from fake_useragent import UserAgent
+from typing import Dict, List
 from loguru import logger
 import pandas as pd
 from playwright.sync_api import sync_playwright
@@ -18,7 +15,6 @@ class XHSCrawler:
             config_path (str): 配置文件路径
         """
         self.config = self._load_config(config_path)
-        self.ua = UserAgent()
         self._setup_directories()
         self._setup_logging()
         
@@ -45,17 +41,6 @@ class XHSCrawler:
             rotation="500 MB",
             level="INFO"
         )
-
-    def _get_headers(self) -> Dict[str, str]:
-        """生成请求头"""
-        return {
-            'User-Agent': self.ua.random,
-            'Cookie': self.config['XHS_COOKIE'],
-            'Accept': 'application/json, text/plain, */*',
-            'Accept-Language': 'zh-CN,zh;q=0.9',
-            'Origin': 'https://www.xiaohongshu.com',
-            'Referer': 'https://www.xiaohongshu.com'
-        }
 
     def search_notes(self, keyword: str, page_num: int = 1) -> List[Dict]:
         """搜索笔记
@@ -165,20 +150,10 @@ class XHSCrawler:
                                             logger.debug(f"使用选择器 {title_selector} 找到标题: {title}")
                                             break
                                     
-                                    # 获取用户名
-                                    user = ''
-                                    for user_selector in ['.user-name', '.author-name', '.nickname', '.user', '.name']:
-                                        user_elem = item.query_selector(user_selector)
-                                        if user_elem:
-                                            user = user_elem.inner_text().strip()
-                                            logger.debug(f"使用选择器 {user_selector} 找到用户名: {user}")
-                                            break
-                                    
                                     note = {
                                         'id': note_id,
                                         'url': note_url,
-                                        'title': title,
-                                        'user': user
+                                        'title': title
                                     }
                                     
                                     notes.append(note)
