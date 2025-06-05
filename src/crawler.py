@@ -42,17 +42,16 @@ class XHSCrawler:
             level="INFO"
         )
 
-    def search_notes(self, keyword: str, page_num: int = 1) -> List[Dict]:
+    def search_notes(self, keyword: str) -> List[Dict]:
         """搜索笔记
 
         Args:
             keyword (str): 搜索关键词
-            page_num (int): 页码
 
         Returns:
             List[Dict]: 搜索结果列表
         """
-        logger.info(f"搜索关键词: {keyword}, 页码: {page_num}")
+        logger.info(f"搜索关键词: {keyword}")
         
         with sync_playwright() as p:
             browser = p.firefox.launch(headless=True)
@@ -80,8 +79,6 @@ class XHSCrawler:
                 # 访问搜索页面
                 encoded_keyword = quote(keyword)
                 url = f"https://www.xiaohongshu.com/search_result?keyword={encoded_keyword}&type=51"
-                if page_num > 1:
-                    url += f"&page={page_num}"
                 
                 logger.debug(f"访问URL: {url}")
                 page.goto(url, wait_until='domcontentloaded', timeout=30000)

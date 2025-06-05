@@ -6,7 +6,6 @@ def main():
     # 解析命令行参数
     parser = argparse.ArgumentParser(description='小红书内容提取工具')
     parser.add_argument('--keyword', '-k', type=str, required=True, help='搜索关键词')
-    parser.add_argument('--pages', '-p', type=int, default=1, help='爬取页数')
     parser.add_argument('--config', '-c', type=str, default='config.py', help='配置文件路径')
     args = parser.parse_args()
 
@@ -16,16 +15,15 @@ def main():
         all_notes = []
 
         # 搜索笔记
-        for page in range(1, args.pages + 1):
-            notes = crawler.search_notes(args.keyword, page)
-            logger.info(f"第 {page} 页搜索到 {len(notes)} 条笔记")
-            
-            # 获取笔记详情
-            for note in notes:
-                detail = crawler.get_note_detail(note['id'], note.get('url'))
-                if detail:
-                    all_notes.append(detail)
-                crawler.random_delay()
+        notes = crawler.search_notes(args.keyword)
+        logger.info(f"搜索到 {len(notes)} 条笔记")
+        
+        # 获取笔记详情
+        for note in notes:
+            detail = crawler.get_note_detail(note['id'], note.get('url'))
+            if detail:
+                all_notes.append(detail)
+            crawler.random_delay()
 
         # 保存数据到CSV
         if all_notes:
